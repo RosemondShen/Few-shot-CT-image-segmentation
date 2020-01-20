@@ -11,7 +11,7 @@ import attention_few_shot_segmentor as sn
 from nn_common_modules import losses
 import copy
 from utils.log_utils import LogWriter
-from utils.shot_batch_sampler import get_lab_list, get_image_num_dict, one_shot_batch_sampler, get_image_and_masks, batch
+from shot_batch_sampler import get_lab_list, get_image_num_dict, one_shot_batch_sampler, get_image_and_masks, batch
 import utils.evaluator as eu
 from utils.common_utils import load_checkpoint, split_batch, create_if_not
 from settings import Settings
