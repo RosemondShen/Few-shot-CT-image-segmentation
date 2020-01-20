@@ -65,16 +65,6 @@ def train(common_params, net_params, attention, refinement):
             torch.cuda.empty_cache()
             few_shot_model.cuda(device)
 
-        '''
-        lab_list = get_lab_list(phase='train', fold=fold)
-        img_num_list = get_image_num_dict(lab_list, phase='train')
-        p = [val for val in img_num_list.values()]
-        prob = p / np.sum(p)
-        img_num_list_val = get_image_num_dict(lab_list, phase='val')
-        p_val = [val for val in img_num_list_val.values()]
-        prob_val = p_val / np.sum(p_val)
-        '''
-
         for phase in ['train', 'val']:
 
             lab_list = get_lab_list(fold, phase)
@@ -105,60 +95,13 @@ def train(common_params, net_params, attention, refinement):
 
                     input1 = sampled_batch[0]
                     y1 = sampled_batch[1]
-                    # input2 = sampled_batch[2]
-                    # y2 = sampled_batch[3]
-                    # print(input1.shape, y1.shape, input2.shape, y2.shape)
-                    '''
-                    if phase == "train":
-                        input1, input2, y1, y2 = one_shot_batch_sampler(phase=phase, lab_list=lab_list,
-                                                                        img_num_list=img_num_list, prob=prob)
-                    else:
-                        input1, input2, y1, y2 = one_shot_batch_sampler(phase=phase, lab_list=lab_list,
-                                                                        img_num_list=img_num_list_val, prob=prob_val)
-                    '''
-                    # condition_input = torch.cat((input1, y1), dim=1)
-                    # query_input = input2
-                    '''
-                    new_input1 = copy.deepcopy(input1).numpy()
-                    new_input2 = copy.deepcopy(input2).numpy()
-                    new_y1 = copy.deepcopy(y1).numpy()
-                    new_y2 = copy.deepcopy(y2).numpy()
-
-                    plt.figure(1)
-
-                    plt.subplot(221)
-                    new_input1 = np.squeeze(new_input1)
-                    plt.imshow(new_input1, cmap='gray')
-
-                    plt.subplot(222)
-                    new_y1 = np.squeeze(new_y1)
-                    plt.imshow(new_y1, cmap='gray')
-                    print("mask area", torch.sum(y1))
-
-                    plt.subplot(223)
-                    new_input2 = np.squeeze(new_input2)
-                    plt.imshow(new_input2, cmap='gray')
-
-                    plt.subplot(224)
-                    new_y2 = np.squeeze(new_y2)
-                    plt.imshow(new_y2, cmap='gray')
-                    print("mask area", torch.sum(y2))
-
-                    plt.show()
-                    '''
 
                     if few_shot_model.is_cuda:
                         input1, y1 = input1.cuda(device), y1.cuda(device)
-                        # input1, input2, y2, y1 = input1.cuda(device), input2.cuda(device), y2.cuda(device), y1.cuda(device)
-                        # condition_input, query_input, y2, y1 = condition_input.cuda(device), query_input.cuda(device), y2.cuda(device), y1.cuda(device)
-
-                    # weights = few_shot_model.conditioner(condition_input)
-                    # output = few_shot_model.segmentor(query_input, weights)
+                        
                     optim_c.zero_grad()  # clear gradients for this training step
-                    # optim_s.zero_grad()  # clear gradients for this training step
                     output = few_shot_model(input1)
 
-                    # loss = losses.loss_calc_v1(output, y2)
                     loss = loss_func(output, y1, binary=True)
                     loss.backward()  # backpropagation, compute gradients
                     if phase == 'train':
